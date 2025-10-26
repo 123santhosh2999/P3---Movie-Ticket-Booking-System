@@ -1,0 +1,168 @@
+html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      layout:decorate="~{layout/main}">
+<head>
+    <title>Select Seats - CineBook</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <h2 class="text-center fw-bold mb-4">Select Your Seats</h2>
+
+            <!-- Movie & Show Info -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <h5 th:text="${show.movie.title}">Movie Title</h5>
+                            <p class="text-muted mb-0" th:text="${show.theater.name}">Theater Name</p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-0">
+                                <i class="fas fa-calendar me-2"></i>
+                                <span th:text="${#temporals.format(show.showTime, 'MMM dd, yyyy hh:mm a')}">Date & Time</span>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-0">
+                                <strong>Price per seat:</strong> 
+                                $<span th:text="${show.price}">10.00</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seat Legend -->
+            <div class="text-center mb-4">
+                <span class="seat-legend">
+                    <i class="fas fa-square seat-available"></i> Available
+                </span>
+                <span class="seat-legend">
+                    <i class="fas fa-square seat-selected"></i> Selected
+                </span>
+                <span class="seat-legend">
+                    <i class="fas fa-square seat-booked"></i> Booked
+                </span>
+            </div>
+
+            <!-- Screen -->
+            <div class="screen-container text-center mb-4">
+                <div class="screen">SCREEN</div>
+            </div>
+
+            <!-- Seating Layout -->
+            <div class="seating-container" id="seatingLayout">
+                <!-- Row A -->
+                <div class="seat-row">
+                    <span class="row-label">A</span>
+                    <div class="seats">
+                        <button th:each="i : ${#numbers.sequence(1, 10)}" 
+                                class="seat" 
+                                th:id="'A' + ${i}"
+                                th:classappend="${#lists.contains(bookedSeats, 'A' + i)} ? 'booked' : ''"
+                                th:disabled="${#lists.contains(bookedSeats, 'A' + i)}"
+                                onclick="toggleSeat(this)">
+                            <span th:text="${i}">1</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row B -->
+                <div class="seat-row">
+                    <span class="row-label">B</span>
+                    <div class="seats">
+                        <button th:each="i : ${#numbers.sequence(1, 10)}" 
+                                class="seat" 
+                                th:id="'B' + ${i}"
+                                th:classappend="${#lists.contains(bookedSeats, 'B' + i)} ? 'booked' : ''"
+                                th:disabled="${#lists.contains(bookedSeats, 'B' + i)}"
+                                onclick="toggleSeat(this)">
+                            <span th:text="${i}">1</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row C -->
+                <div class="seat-row">
+                    <span class="row-label">C</span>
+                    <div class="seats">
+                        <button th:each="i : ${#numbers.sequence(1, 10)}" 
+                                class="seat" 
+                                th:id="'C' + ${i}"
+                                th:classappend="${#lists.contains(bookedSeats, 'C' + i)} ? 'booked' : ''"
+                                th:disabled="${#lists.contains(bookedSeats, 'C' + i)}"
+                                onclick="toggleSeat(this)">
+                            <span th:text="${i}">1</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row D -->
+                <div class="seat-row">
+                    <span class="row-label">D</span>
+                    <div class="seats">
+                        <button th:each="i : ${#numbers.sequence(1, 10)}" 
+                                class="seat" 
+                                th:id="'D' + ${i}"
+                                th:classappend="${#lists.contains(bookedSeats, 'D' + i)} ? 'booked' : ''"
+                                th:disabled="${#lists.contains(bookedSeats, 'D' + i)}"
+                                onclick="toggleSeat(this)">
+                            <span th:text="${i}">1</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row E -->
+                <div class="seat-row">
+                    <span class="row-label">E</span>
+                    <div class="seats">
+                        <button th:each="i : ${#numbers.sequence(1, 10)}" 
+                                class="seat" 
+                                th:id="'E' + ${i}"
+                                th:classappend="${#lists.contains(bookedSeats, 'E' + i)} ? 'booked' : ''"
+                                th:disabled="${#lists.contains(bookedSeats, 'E' + i)}"
+                                onclick="toggleSeat(this)">
+                            <span th:text="${i}">1</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Summary -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <p class="mb-0"><strong>Selected Seats:</strong> <span id="selectedSeatsDisplay">None</span></p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-0"><strong>Total Seats:</strong> <span id="totalSeats">0</span></p>
+                        </div>
+                        <div class="col-md-3">
+                            <h5 class="mb-0 text-success">
+                                Total: $<span id="totalAmount">0.00</span>
+                            </h5>
+                        </div>
+                        <div class="col-md-2">
+                            <form th:action="@{/booking/confirm}" method="post" id="bookingForm">
+                                <input type="hidden" name="showId" th:value="${show.id}">
+                                <input type="hidden" name="selectedSeats" id="selectedSeatsInput">
+                                <button type="submit" class="btn btn-primary w-100" id="proceedBtn" disabled>
+                                    Proceed
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+            const pricePerSeat = /*[[${show.price}]]*/ 10.00;
+            const showId = /*[[${show.id}]]*/ 1;
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+html
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
+      layout:decorate="~{layout/main}">
+<head>
+    <title th:text="${movie.title} + ' - CineBook'">Movie Detail</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <div class="container py-5">
+            <!-- Movie Header -->
+            <div class="row mb-5">
+                <div class="col-lg-4">
+                    <img th:src="${movie.posterUrl} ?: 'https://via.placeholder.com/400x600/333333/ffffff?text=' + ${movie.title}" 
+                         class="img-fluid rounded shadow" th:alt="${movie.title}">
+                </div>
+                <div class="col-lg-8">
+                    <h1 class="display-4 fw-bold mb-3" th:text="${movie.title}">Movie Title</h1>
+                    
+                    <div class="movie-badges mb-3">
+                        <span class="badge bg-primary fs-6 me-2" th:text="${movie.genre}">Action</span>
+                        <span class="badge bg-secondary fs-6 me-2" th:text="${movie.rating}">PG-13</span>
+                        <span class="badge bg-info fs-6" th:text="${movie.duration} + ' min'">120 min</span>
+                    </div>
+
+                    <div class="movie-info mb-4">
+                        <p><strong>Director:</strong> <span th:text="${movie.director}">Director Name</span></p>
+                        <p><strong>Cast:</strong> <span th:text="${movie.cast}">Cast Members</span></p>
+                        <p><strong>Language:</strong> <span th:text="${movie.language}">English</span></p>
+                        <p><strong>Release Date:</strong> <span th:text="${#temporals.format(movie.releaseDate, 'MMM dd, yyyy')}">Jan 1, 2024</span></p>
+                    </div>
+
+                    <h4>Synopsis</h4>
+                    <p class="text-muted" th:text="${movie.description}">Movie description goes here...</p>
+
+                    <div th:if="${movie.trailerUrl}" class="mt-4">
+                        <a th:href="${movie.trailerUrl}" target="_blank" class="btn btn-outline-danger">
+                            <i class="fab fa-youtube me-2"></i>Watch Trailer
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Shows -->
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="fw-bold mb-4">Select Show Time</h3>
+                    
+                    <div th:if="${#lists.isEmpty(shows)}" class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No shows available for this movie at the moment.
+                    </div>
+
+                    <div class="shows-container" th:if="${!#lists.isEmpty(shows)}">
+                        <div th:each="show : ${shows}" class="show-card card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3">
+                                        <h5 class="mb-1" th:text="${show.theater.name}">Theater Name</h5>
+                                        <p class="text-muted small mb-0" th:text="${show.theater.location}">Location</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <p class="mb-0">
+                                            <i class="fas fa-calendar me-2"></i>
+                                            <span th:text="${#temporals.format(show.showTime, 'MMM dd, yyyy')}">Date</span>
+                                        </p>
+                                        <p class="mb-0">
+                                            <i class="fas fa-clock me-2"></i>
+                                            <span th:text="${#temporals.format(show.showTime, 'hh:mm a')}">Time</span>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <h5 class="text-success mb-0">
+                                            $<span th:text="${show.price}">10.00</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <p class="mb-0 small">
+                                            <i class="fas fa-couch me-1"></i>
+                                            <span th:text="${show.availableSeats}">50</span> seats available
+                                        </p>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <a th:href="@{/booking/seats/{id}(id=${show.id})}" 
+                                           class="btn btn-primary w-100"
+                                           th:classappend="${show.availableSeats <= 0} ? 'disabled' : ''">
+                                            <i class="fas fa-ticket me-2"></i>Book
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
