@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Payment</title><link rel="stylesheet" th:href="@{/assets/css/style.css}"/></head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo">
+      <img th:src="@{/assets/img/logo.png}" alt="logo"/>
+      <h1 class="site-title">Showmate</h1>
+    </div>
+    <div class="top-search">
+      <input type="search" placeholder="Search for movies"/>
+    </div>
+    <nav>
+      <a th:href='@{/}'>Home</a>
+      <a th:href='@{/movies}'>Movies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Payment</div>
+          <div class="subtle">Secure checkout (demo)</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <img style="width:110px;border-radius:14px;aspect-ratio:2/3;object-fit:cover" th:src="${movie.posterUrl != null && movie.posterUrl != '' ? movie.posterUrl : '/assets/img/logo.png'}" alt="poster"/>
+          <div>
+            <div style="font-weight:800" th:text="${movie.title}">Movie</div>
+            <div class="subtle">Showtime: <span th:text="${showtime.startTime}">time</span></div>
+            <div class="subtle">Seats: <span th:text="${seats}">A1</span></div>
+          </div>
+        </div>
+
+        <hr/>
+
+        <form th:action="@{/booking/confirm}" method="post">
+          <input type="hidden" name="movieId" th:value="${movie.id}"/>
+          <input type="hidden" name="showtimeId" th:value="${showtime.id}"/>
+          <input type="hidden" name="email" th:value="${email}"/>
+          <input type="hidden" name="seats" th:value="${seats}"/>
+
+          <div>
+            <label>Card Number</label>
+            <input placeholder="1234 5678 9012 3456" inputmode="numeric"/>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label>Expiry</label>
+              <input placeholder="MM/YY"/>
+            </div>
+            <div>
+              <label>CVV</label>
+              <input placeholder="***"/>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px">
+            <div>
+              <div class="subtle">Total Amount</div>
+              <div style="font-weight:900;font-size:18px">₹ <span th:text="${totalAmount}">0</span></div>
+            </div>
+            <button class="btn" type="submit">Pay Now</button>
+          </div>
+
+          <div class="subtle" style="font-size:12px;margin-top:10px">This is a demo payment screen. Clicking “Pay Now” will confirm the booking.</div>
+        </form>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Order Summary</div>
+          <div class="subtle">Review details</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div style="display:grid;gap:10px">
+          <div><span class="chip">Email</span> <span th:text="${email}">email</span></div>
+          <div><span class="chip">Seats</span> <span th:text="${seats}">A1</span></div>
+          <div><span class="chip">Price/Seat</span> ₹ <span th:text="${showtime.seatPrice}">0</span></div>
+          <div><span class="chip">Tickets</span> <span th:text="${seatCount}">0</span></div>
+        </div>
+        <hr/>
+        <a class="btn secondary" th:href="@{'/booking/' + ${movie.id} + '/' + ${showtime.id}}">Change seats</a>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

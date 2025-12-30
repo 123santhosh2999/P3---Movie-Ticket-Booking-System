@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Booking</title><link rel="stylesheet" th:href="@{/assets/css/style.css}"/></head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo">
+      <img th:src="@{/assets/img/logo.png}" alt="logo"/>
+      <h1 class="site-title">Showmate</h1>
+    </div>
+    <div class="top-search">
+      <input type="search" placeholder="Search for movies"/>
+    </div>
+    <nav>
+      <a th:href='@{/}'>Home</a>
+      <a th:href='@{/movies}'>Movies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Booking</div>
+          <div class="subtle">Confirm your seats</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div style="display:flex;gap:12px;align-items:flex-start">
+          <img style="width:110px;border-radius:14px;aspect-ratio:2/3;object-fit:cover" th:src="${movie.posterUrl != null && movie.posterUrl != '' ? movie.posterUrl : '/assets/img/logo.png'}" alt="poster"/>
+          <div>
+            <div style="font-weight:800" th:text="${movie.title}">Movie</div>
+            <div class="subtle">Showtime: <span th:text="${showtime.startTime}">time</span></div>
+          </div>
+        </div>
+
+        <div th:if="${error}" class="alert" style="margin-top:12px" th:text="${error}"></div>
+
+        <div style="margin-top:14px">
+          <form th:action="@{/booking/payment}" method="post" id="bookingForm">
+            <input type="hidden" name="movieId" th:value="${movie.id}"/>
+            <input type="hidden" name="showtimeId" th:value="${showtime.id}"/>
+            <div>
+              <label>Email</label>
+              <input name="email" type="email" placeholder="name@example.com" required/>
+            </div>
+            <div>
+              <label>Seats</label>
+              <input type="hidden" name="seats" id="seatsInput" required/>
+              <div class="seat-legend" style="margin:8px 0 10px">
+                <span class="seat seat--available">Available</span>
+                <span class="seat seat--selected">Selected</span>
+                <span class="seat seat--booked">Booked</span>
+              </div>
+              <div class="seat-grid" id="seatGrid" aria-label="Seat selection"></div>
+              <div class="subtle" style="font-size:12px;margin-top:8px">Click seats to select. Selected seats: <span id="selectedSeatsText">None</span></div>
+            </div>
+            <button class="btn" type="submit">Proceed to Payment</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Tips</div>
+          <div class="subtle">Quick help</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="subtle">Available seats are created automatically (A1–A10 for demo). If you get “Seat not found”, check the seat number for the selected showtime.</div>
+        <hr/>
+        <a class="btn secondary" th:href="@{'/movie/' + ${movie.id}}">Back to showtimes</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script th:inline="javascript">
+  const showtimeId = /*[[${showtime.id}]]*/ 0;
+  const seatCols = /*[[${showtime.seatCols}]]*/ 10;
+  const seatGridEl = document.getElementById('seatGrid');
+  const seatsInputEl = document.getElementById('seatsInput');
+  const selectedSeatsTextEl = document.getElementById('selectedSeatsText');
+
+  const selected = new Set();
+
+  function updateSelectedUI() {
+    const list = Array.from(selected).sort();
+    seatsInputEl.value = list.join(', ');
+    selectedSeatsTextEl.textContent = list.length ? list.join(', ') : 'None';
+  }
+
+  function seatButton(seat) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'seat' + (seat.booked ? ' seat--booked' : ' seat--available');
+    btn.textContent = seat.colIndex && seat.colIndex > 0 ? String(seat.colIndex) : seat.seatNumber;
+    if (seat.booked) {
+      btn.disabled = true;
+    }
+    btn.addEventListener('click', () => {
+      if (selected.has(seat.seatNumber)) {
+        selected.delete(seat.seatNumber);
+        btn.classList.remove('seat--selected');
+        btn.classList.add('seat--available');
+      } else {
+        selected.add(seat.seatNumber);
+        btn.classList.add('seat--selected');
+        btn.classList.remove('seat--available');
+      }
+      updateSelectedUI();
+    });
+    return btn;
+  }
+
+  function renderSectionedLayout(seats) {
+    const bySection = new Map();
+    for (const s of seats) {
+      const section = (s.sectionName && s.sectionName !== '') ? s.sectionName : 'NORMAL';
+      if (!bySection.has(section)) bySection.set(section, []);
+      bySection.get(section).push(s);
+    }
+
+    const sectionOrder = ['PREMIUM', 'EXECUTIVE', 'NORMAL'];
+    const sections = Array.from(bySection.keys()).sort((a, b) => sectionOrder.indexOf(a) - sectionOrder.indexOf(b));
+    seatGridEl.innerHTML = '';
+
+    for (const section of sections) {
+      const sectionSeats = bySection.get(section);
+      const maxCol = Math.max(...sectionSeats.map(s => s.colIndex || 0), 22);
+      const price = sectionSeats.find(s => s.seatPrice && s.seatPrice > 0)?.seatPrice;
+
+      const block = document.createElement('div');
+      block.className = 'seat-section';
+
+      const title = document.createElement('div');
+      title.className = 'seat-section-title';
+      title.textContent = price ? `₹${price} ${section}` : section;
+      block.appendChild(title);
+
+      const byRow = new Map();
+      for (const s of sectionSeats) {
+        const row = (s.rowNumber && s.rowNumber !== '') ? s.rowNumber : 'A';
+        if (!byRow.has(row)) byRow.set(row, []);
+        byRow.get(row).push(s);
+      }
+
+      const rows = Array.from(byRow.keys()).sort();
+      const rowsWrap = document.createElement('div');
+      rowsWrap.className = 'seat-section-rows';
+
+      for (const row of rows) {
+        const wrap = document.createElement('div');
+        wrap.className = 'seat-row';
+
+        const label = document.createElement('div');
+        label.className = 'seat-row-label';
+        label.textContent = row;
+
+        const grid = document.createElement('div');
+        grid.className = 'seat-row-grid';
+        grid.style.gridTemplateColumns = `repeat(${maxCol}, 1fr)`;
+
+        const seatsByCol = new Map();
+        for (const s of byRow.get(row)) seatsByCol.set(s.colIndex || 0, s);
+
+        for (let c = 1; c <= maxCol; c++) {
+          const seat = seatsByCol.get(c);
+          if (seat) {
+            grid.appendChild(seatButton(seat));
+          } else {
+            const gap = document.createElement('div');
+            gap.className = 'seat-gap';
+            grid.appendChild(gap);
+          }
+        }
+
+        wrap.appendChild(label);
+        wrap.appendChild(grid);
+        rowsWrap.appendChild(wrap);
+      }
+
+      block.appendChild(rowsWrap);
+      seatGridEl.appendChild(block);
+    }
+  }
+
+  fetch(`/api/seats/showtime/${showtimeId}`)
+    .then(r => r.json())
+    .then(seats => {
+      renderSectionedLayout(seats);
+      updateSelectedUI();
+    })
+    .catch(() => {
+      seatGridEl.innerHTML = '<div class="subtle">Unable to load seats. Please refresh.</div>';
+    });
+
+  document.getElementById('bookingForm').addEventListener('submit', (e) => {
+    if (!seatsInputEl.value || seatsInputEl.value.trim() === '') {
+      e.preventDefault();
+      alert('Please select at least one seat');
+    }
+  });
+</script>
+</body>
+</html>

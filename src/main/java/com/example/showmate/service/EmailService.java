@@ -1,41 +1,24 @@
 package com.example.showmate.service;
-
-import org.apache.logging.log4j.message.SimpleMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
+import com.example.showmate.model.Booking;
 import com.example.showmate.model.Showtime;
 
-import java.util.List;
-
 @Service
-public class EmailService<JavaMailSender> {
+public class EmailService {
+    @Autowired(required = false) private JavaMailSender mailSender;
 
-    @Autowired
-    private JavaMailSender mailSender;
-    private String seatNumber;
-    private String busNumber;
-    private String departureTime;
-
-    public void sendBookingEmail(String to, Showtime showtime, List<String> seats) {
-       SimpleMessage emailMessage = new SimpleMessage();
-     emailMessage.setTo("user@example.com");   // ✅ Works fine
-       emailMessage.setSubject("Test Email");
-       emailMessage.setText("This is a test.");
-
-
-       "Your booking is confirmed!\n\n" +
-      "Seat Number: " + seatNumber + "\n" +
-     "Bus Number: " + busNumber + "\n" +
-      "Departure: " + departureTime + "\n" +
-    
-
- 
-
-        
-    }
-
-    public JavaMailSender getMailSender() {
-        return mailSender;
+    public void sendBookingConfirmation(String to, Booking booking, Showtime showtime) {
+        if (to == null || to.isBlank() || mailSender == null) return;
+        String movieTitle = (showtime != null && showtime.getMovie() != null) ? showtime.getMovie().getTitle() : "Show";
+        String showTime = (showtime != null) ? showtime.getStartTime() : "N/A";
+        String seats = (booking != null && booking.getSeatNumbers() != null && !booking.getSeatNumbers().isBlank()) ? booking.getSeatNumbers() : "N/A";
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("Booking Confirmation - " + movieTitle);
+        message.setText("Your booking for " + movieTitle + " at " + showTime + " is confirmed. Seats: " + seats);
+        mailSender.send(message);
     }
 }

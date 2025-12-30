@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Showmate - Movies</title>
+<link rel="stylesheet" th:href="@{/assets/css/style.css}"/></head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo">
+      <img th:src="@{/assets/img/logo.png}" alt="logo"/>
+      <h1 class="site-title">Showmate</h1>
+    </div>
+    <div class="top-search">
+      <input type="search" placeholder="Search for movies"/>
+    </div>
+    <nav>
+      <a th:href='@{/}'>Home</a>
+      <a th:href='@{/movies}'>Movies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Movies</div>
+          <div class="subtle">Explore and book your favourites</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div class="movies-grid">
+          <div th:each="m : ${movies}" class="movie-card">
+            <img class="movie-poster" th:src="${m.posterUrl != null && m.posterUrl != '' ? m.posterUrl : '/assets/img/logo.png'}" alt="poster"/>
+            <div class="movie-meta">
+              <div class="movie-title" th:text="${m.title}">Title</div>
+              <p class="movie-desc" th:text="${m.description}">Desc</p>
+            </div>
+            <div class="card-actions">
+              <span class="chip">Movies</span>
+              <a th:href="@{'/movie/' + ${m.id}}" class="btn">Book</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Add Movie</div>
+          <div class="subtle">Admin (simple)</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <form th:action="@{/api/movies}" method="post">
+          <div>
+            <label>Title</label>
+            <input name="title" placeholder="Movie title" required/>
+          </div>
+          <div>
+            <label>Description</label>
+            <textarea name="description" placeholder="Short description"></textarea>
+          </div>
+          <div>
+            <label>Poster URL</label>
+            <input name="posterUrl" placeholder="https://..."/>
+          </div>
+          <button class="btn" type="submit">Create</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

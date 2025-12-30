@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title th:text="${movie.title}">Movie</title>
+<link rel="stylesheet" th:href="@{/assets/css/style.css}"/></head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo">
+      <img th:src="@{/assets/img/logo.png}" alt="logo"/>
+      <h1 class="site-title">Showmate</h1>
+    </div>
+    <div class="top-search">
+      <input type="search" placeholder="Search for movies"/>
+    </div>
+    <nav>
+      <a th:href='@{/}'>Home</a>
+      <a th:href='@{/movies}'>Movies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="two-col">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title" th:text="${movie.title}">Movie</div>
+          <div class="subtle">Movie details</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:14px;align-items:start">
+          <img style="width:160px;border-radius:14px;aspect-ratio:2/3;object-fit:cover" th:src="${movie.posterUrl != null && movie.posterUrl != '' ? movie.posterUrl : '/assets/img/logo.png'}" alt="poster"/>
+          <div>
+            <div class="chip" style="margin-bottom:10px">Now Showing</div>
+            <div style="font-weight:700;font-size:16px;margin-bottom:6px" th:text="${movie.title}">Title</div>
+            <div class="subtle" th:text="${movie.description}">Desc</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="page-title">Showtimes</div>
+          <div class="subtle">Select a time to book</div>
+        </div>
+      </div>
+      <div class="section-body">
+        <div th:if="${showtimes.empty}" class="subtle">No showtimes available.</div>
+        <div th:each="s : ${showtimes}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--bms-border);border-radius:14px;background:#fff;margin-bottom:10px">
+          <div>
+            <div style="font-weight:700" th:text="${s.startTime}">Time</div>
+            <div class="subtle" th:text="${s.theaterName != null && s.theaterName != '' ? s.theaterName : 'Theater'}">Theater</div>
+            <div class="subtle">Price: <span th:text="${s.seatPrice}">0</span></div>
+          </div>
+          <a th:href="@{'/booking/' + ${movie.id} + '/' + ${s.id}}" class="btn">Book</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

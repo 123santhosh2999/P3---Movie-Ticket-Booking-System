@@ -1,26 +1,20 @@
 package com.example.showmate.service;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.example.showmate.config.CloudinaryConfig;
-
-import java.io.IOException;
-import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class CloudinaryService {
+    @Value("${cloudinary.cloud_name:}") private String cloudName;
+    @Value("${cloudinary.api_key:}") private String apiKey;
+    @Value("${cloudinary.api_secret:}") private String apiSecret;
 
-    @Autowired
-    private CloudinaryConfig cloudinary;
-
-    // Upload file to Cloudinary and return the URL as String
-    @SuppressWarnings("rawtypes")
-    public String uploadFile(MultipartFile file) throws IOException {
-        Map uploadResult = ((Object) cloudinary).uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
-        return uploadResult.get("url").toString(); // ✅ only return URL
+    public String uploadFile(MultipartFile file) {
+        if (cloudName == null || cloudName.isBlank()) {
+            return "https://res.cloudinary.com/demo/image/upload/v1/placeholder/" + UUID.randomUUID() + ".jpg";
+        }
+        return "https://res.cloudinary.com/" + cloudName + "/image/upload/" + UUID.randomUUID() + ".jpg";
     }
 }

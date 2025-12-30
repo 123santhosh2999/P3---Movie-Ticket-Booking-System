@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Success</title><link rel="stylesheet" th:href="@{/assets/css/style.css}"/></head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo">
+      <img th:src="@{/assets/img/logo.png}" alt="logo"/>
+      <h1 class="site-title">Showmate</h1>
+    </div>
+    <div class="top-search">
+      <input type="search" placeholder="Search for movies"/>
+    </div>
+    <nav>
+      <a th:href='@{/}'>Home</a>
+      <a th:href='@{/movies}'>Movies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="page-title">Booking Confirmed</div>
+        <div class="subtle">Enjoy your show</div>
+      </div>
+      <a th:href="@{/}" class="btn secondary">Go to Home</a>
+    </div>
+    <div class="section-body">
+      <div style="display:grid;gap:10px">
+        <div><span class="chip">Booking ID</span> <span style="font-weight:800" th:text="${booking.id}">0</span></div>
+        <div><span class="chip">Seats</span> <span style="font-weight:700" th:text="${booking.seatNumbers}">A1</span></div>
+        <div><span class="chip">Total</span> <span style="font-weight:700" th:text="${booking.totalSeats}">1</span></div>
+      </div>
+      <hr/>
+      <a th:href="@{/movies}" class="btn">Book another movie</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

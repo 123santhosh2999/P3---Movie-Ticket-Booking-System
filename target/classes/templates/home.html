@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"/><title>Showmate - Home</title>
+<link rel="stylesheet" th:href="@{/assets/css/style.css}"/></head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo">
+      <img th:src="@{/assets/img/logo.png}" alt="logo"/>
+      <h1 class="site-title">Showmate</h1>
+    </div>
+    <div class="top-search">
+      <input type="search" placeholder="Search for Movies, Events, Plays, Sports and Activities"/>
+    </div>
+    <nav>
+      <a th:href='@{/}'>Home</a>
+      <a th:href='@{/movies}'>Movies</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="section">
+    <div class="section-header">
+      <div>
+        <div class="page-title">Recommended Movies</div>
+        <div class="subtle">Book tickets instantly</div>
+      </div>
+      <a class="btn secondary" th:href='@{/movies}'>View all</a>
+    </div>
+    <div class="section-body">
+      <div th:if="${movies.empty}" class="subtle">No movies found.</div>
+      <div class="movies-grid" th:if="${!movies.empty}">
+        <div th:each="m : ${movies}" class="movie-card">
+          <img class="movie-poster" th:src="${m.posterUrl != null && m.posterUrl != '' ? m.posterUrl : '/assets/img/logo.png'}" alt="poster"/>
+          <div class="movie-meta">
+            <div class="movie-title" th:text="${m.title}">Title</div>
+            <p class="movie-desc" th:text="${m.description}">Desc</p>
+          </div>
+          <div class="card-actions">
+            <span class="chip">Now Showing</span>
+            <a th:href="@{'/movie/' + ${m.id}}" class="btn">Book</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>
