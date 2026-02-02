@@ -1,0 +1,8 @@
+com\example\showmate\repository\MovieRepositoryTest.class
+com\example\showmate\controller\MovieControllerTest.class
+com\example\showmate\service\BookingServiceTest.class
+com\example\showmate\service\MovieServiceTest.class
+com\example\showmate\ShowmateApplicationTests.class
+com\example\showmate\repository\ShowtimeRepositoryTest.class
+com\example\showmate\repository\SeatRepositoryTest.class
+com\example\showmate\controller\BookingControllerTest.class
